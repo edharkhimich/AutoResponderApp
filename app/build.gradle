@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 27
     defaultConfig {
         applicationId "kdevgroup.com.autoresponderapp"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -16,13 +16,47 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+ext{
+    robolectricVer = "3.6.1"
+    robolectricShadowSupportVer = '3.3.2'
+    espressoTestRunnerVer = "1.0.2"
+    espressoCoreVer = "3.0.2"
+    appCompatV7Ver = "27.1.1"
+    constraintVer = "1.1.2"
+    junitVer = "4.12"
+    moxyVer = '1.5.5'
+    hamcrestVer = '1.3'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0-rc01'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    testImplementation "junit:junit:$junitVer"
+
+    // Support
+    implementation "com.android.support:appcompat-v7:$appCompatV7Ver"
+    implementation "com.android.support.constraint:constraint-layout:$constraintVer"
+
+    // Espresso
+    androidTestImplementation "com.android.support.test:runner:$espressoTestRunnerVer"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoCoreVer"
+
+    //Robolectric
+    testImplementation "org.robolectric:robolectric:$robolectricVer"
+    testImplementation "org.robolectric:shadows-support-v4:$robolectricShadowSupportVer"
+    testImplementation "org.robolectric:shadows-multidex:$robolectricShadowSupportVer"
+    testImplementation "org.hamcrest:hamcrest-library:$hamcrestVer"
+
+    //Moxy
+    implementation "com.arello-mobile:moxy:$moxyVer"
+    annotationProcessor "com.arello-mobile:moxy-compiler:$moxyVer"
+    implementation "com.arello-mobile:moxy-app-compat:$moxyVer"
+
 }
