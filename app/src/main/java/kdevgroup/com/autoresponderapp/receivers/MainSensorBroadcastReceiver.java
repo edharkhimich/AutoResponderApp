@@ -1,9 +1,11 @@
-package kdevgroup.com.autoresponderapp.main;
+package kdevgroup.com.autoresponderapp.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import kdevgroup.com.autoresponderapp.main.MainCallService;
 
 import static kdevgroup.com.autoresponderapp.common.Constants.TAG;
 

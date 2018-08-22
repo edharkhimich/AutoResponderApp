@@ -25,8 +25,9 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        service = new MainCallService(getApplicationContext());
+        service = new MainCallService();
         mServiceIntent = new Intent(getApplicationContext(), service.getClass());
+
         if (!isMyServiceRunning(service.getClass())) {
             startService(mServiceIntent);
         }
@@ -48,7 +49,7 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
     @Override
     protected void onDestroy() {
         stopService(mServiceIntent);
-        Log.i(Constants.TAG, "onDestroy!");
+        Log.i(Constants.TAG, "Main Activity onDestroy!");
         super.onDestroy();
 
     }

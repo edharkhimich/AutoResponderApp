@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kdevgroup.com.autoresponderapp">
 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,15 +25,20 @@
             android:exported="false"/>
 
         <receiver
-            android:name="kdevgroup.com.autoresponderapp.main.MainSensorBroadcastReceiver"
+            android:name="kdevgroup.com.autoresponderapp.receivers.MainSensorBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:label="RestartServiceWhenStopped">
             <intent-filter>
-                <action android:name="kdevgroup.com.autoresponderapp.receivers.SensorBroadcastReceiver"/>
+                <action android:name="kdevgroup.com.autoresponderapp.receivers.MainSensorBroadcastReceiver"/>
             </intent-filter>
         </receiver>
 
+        <receiver android:name="kdevgroup.com.autoresponderapp.receivers.CallReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
     </application>
-
 </manifest>

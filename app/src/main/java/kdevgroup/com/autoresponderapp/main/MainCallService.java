@@ -1,7 +1,6 @@
 package kdevgroup.com.autoresponderapp.main;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -10,9 +9,10 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import kdevgroup.com.autoresponderapp.common.Constants;
+import kdevgroup.com.autoresponderapp.providers.ContactProvider;
 
 import static kdevgroup.com.autoresponderapp.common.Constants.BROADCAST_ACTION;
+import static kdevgroup.com.autoresponderapp.common.Constants.NUMBER_KEY;
 import static kdevgroup.com.autoresponderapp.common.Constants.TAG;
 
 public class MainCallService extends Service {
@@ -22,20 +22,24 @@ public class MainCallService extends Service {
     private Timer timer;
     private TimerTask timerTask;
     private long oldTime = 0;
-
-    public MainCallService(Context applicationContext) {
-        super();
-        Log.d(TAG, "CallService: constructor" );
-
-    }
+    private ContactProvider provider;
+    private String incomingNumber;
 
     public MainCallService() {
+        super();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         startTimer();
+
+        if(intent.getStringExtra(NUMBER_KEY) != null){
+            provider = new ContactProvider(getApplicationContext());
+            provider.loadContactList();
+            incomingNumber = intent.getStringExtra(NUMBER_KEY);
+            Log.d(TAG, "onStartCommand: getIntentExtra " + incomingNumber);
+        }
         return START_STICKY;
     }
 
