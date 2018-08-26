@@ -23,6 +23,7 @@ import kdevgroup.com.autoresponderapp.main.MainActivity;
 import kdevgroup.com.autoresponderapp.receivers.CallReceiver;
 
 import static kdevgroup.com.autoresponderapp.common.Constants.NOTIFICATION_CHANNEL_ID;
+import static kdevgroup.com.autoresponderapp.common.Constants.NUMBER_KEY;
 import static kdevgroup.com.autoresponderapp.common.Constants.TAG;
 
 public class MyTaskService extends Service {
@@ -52,8 +53,11 @@ public class MyTaskService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-//            phoneNr = intent.getStringExtra(NUMBER_KEY);
-        Log.d(TAG, "onReceive: phone number " + phoneNr);
+        if(intent.getStringExtra(NUMBER_KEY) != null) {
+            phoneNr = intent.getStringExtra(NUMBER_KEY);
+            Log.d(TAG, "onReceive: phone number " + phoneNr);
+        }
+
 
         startTimer();
         startCallReceiver();
