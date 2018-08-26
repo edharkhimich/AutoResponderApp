@@ -11,9 +11,11 @@ import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -35,53 +37,52 @@ public class MyTaskService extends Service {
 
     private Timer timer;
     private TimerTask timerTask;
+    private CallReceiver callReceiver;
 
     private boolean contactNumberCalling() {
         boolean contactNumber = false;
         for (String number : getContactNumbers()) {
-            if (number.equals(phoneNr)) {
-                contactNumber = true;
-                break;
-            } else {
-                Log.d(TAG, "Unknown Nubmer calling | number --> " + number);
-            }
+            if(PhoneNumberUtils.compare(getApplicationContext(), number, phoneNr)){
+                Log.d(TAG, "contactNumberCalling: equals");
+            contactNumber = true;
+            break;
+        } else{
+            Log.d(TAG, "Unknown Number calling | number --> " + number);
         }
-        return contactNumber;
     }
+        return contactNumber;
+}
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        if(intent.getStringExtra(NUMBER_KEY) != null) {
+        startTimer();
+
+        if (intent.getStringExtra(NUMBER_KEY) != null) {
             phoneNr = intent.getStringExtra(NUMBER_KEY);
+            unregisterReceiver(callReceiver);
+            if (contactNumberCalling()) {
+                Log.d(TAG, "onStartCommand: contactNumberCalling()");
+                //TODO detect voice
+            }
             Log.d(TAG, "onReceive: phone number " + phoneNr);
         }
 
-
-        startTimer();
         startCallReceiver();
+
+
+        // ToDo Maybe add inc number to notification
         startForegroundService();
-
-
-
-//        if (contactNumberCalling()) {
-//            Log.d(TAG, "onReceive: Contact number calling");
-//            //TODO Start recording message
-//            startForegroundService();
-//        } else {
-//            Log.d(TAG, "onReceive: Calling unknown number");
-//        }
-//        }
 
         return START_NOT_STICKY;
     }
 
-    private void startCallReceiver(){
+    private void startCallReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("android.intent.action.PHONE_STATE");
         intentFilter.setPriority(100);
-        CallReceiver callReceiver = new CallReceiver();
+        callReceiver = new CallReceiver();
         registerReceiver(callReceiver, intentFilter);
     }
 
@@ -91,7 +92,7 @@ public class MyTaskService extends Service {
         ContentResolver cr = getContentResolver();
         Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 
-        if (cursor.moveToFirst()) {
+        if (Objects.requireNonNull(cursor).moveToFirst()) {
             String contactId =
                     cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
 
@@ -99,6 +100,7 @@ public class MyTaskService extends Service {
                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
             while (phones.moveToNext()) {
                 String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                contacts.add(number);
                 Log.d(Constants.TAG, "getContactNames: " + number);
             }
             phones.close();
@@ -132,12 +134,11 @@ public class MyTaskService extends Service {
     }
 
     public void startTimer() {
-        //set a new Timer
-        timer = new Timer();
-
-        initializeTimerTask();
-
-        timer.schedule(timerTask, 1000, 1000); //
+        if(counter == 0) {
+            timer = new Timer();
+            initializeTimerTask();
+            timer.schedule(timerTask, 1000, 1000);
+        }
     }
 
     public void initializeTimerTask() {
