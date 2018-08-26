@@ -21,6 +21,10 @@ android {
             includeAndroidResources = true
         }
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 ext{
@@ -58,5 +62,8 @@ dependencies {
     implementation "com.arello-mobile:moxy:$moxyVer"
     annotationProcessor "com.arello-mobile:moxy-compiler:$moxyVer"
     implementation "com.arello-mobile:moxy-app-compat:$moxyVer"
+
+    //Permissions
+    implementation 'rebus:permission-utils:2.0.7'
 
 }
