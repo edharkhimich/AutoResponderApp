@@ -12,5 +12,7 @@ public class Constants {
     public static final String NOTIFICATION_CHANNEL_ID = "my_channel_id";
     public static final String NOTIFICATION_CHANNEL_NAME = "my_channel_name";
     public static final int PERMISSIONS_REQUEST_READ_CONTACTS = 12;
+    public static final String AUTO_ANSWER_PERMISSION_KEY = "answer_key";
+
 
 }

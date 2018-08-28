@@ -8,6 +8,7 @@ import android.util.Log;
 
 import java.util.Objects;
 
+import kdevgroup.com.autoresponderapp.common.AcceptCallActivity;
 import kdevgroup.com.autoresponderapp.common.MyTaskService;
 
 import static kdevgroup.com.autoresponderapp.common.Constants.NUMBER_KEY;
@@ -24,13 +25,25 @@ public class CallReceiver extends BroadcastReceiver {
 
             if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
                 String number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
-                Intent serviceIntent = new Intent(context, MyTaskService.class);
-                serviceIntent.putExtra(NUMBER_KEY, number);
-                context.startService(serviceIntent);
-                Log.e(TAG, "Inside EXTRA_STATE_RINGING");
-                Log.e(TAG, "incoming number : " + number);
+                sendIncomingNumberToService(context, number);
             }
+
         }
+    }
+
+    private void sendIncomingNumberToService(Context context, String number){
+        Intent serviceIntent = new Intent(context, MyTaskService.class);
+        serviceIntent.putExtra(NUMBER_KEY, number);
+        context.startService(serviceIntent);
+        Log.e(TAG, "Inside EXTRA_STATE_RINGING");
+        Log.e(TAG, "incoming number : " + number);
+    }
+
+    private void answerCall(Context context){
+        Intent intent = new Intent(context, AcceptCallActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        context.startActivity(intent);
     }
 }
 

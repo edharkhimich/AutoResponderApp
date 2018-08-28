@@ -1,8 +1,9 @@
 package kdevgroup.com.autoresponderapp.main;
 
-import android.app.ActivityManager;
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -26,12 +27,15 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
     @InjectPresenter
     MainPresenter presenter;
 
+    private boolean autoAnswerActivate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(Constants.TAG, "onCreate: ");
 
+        checkAutoAnswerPermission();
         checkPermissions();
     }
 
@@ -53,6 +57,20 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
                     }
                 })
                 .ask(this);
+    }
+
+    public void checkAutoAnswerPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.MODIFY_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                Log.d(Constants.TAG, "checkAutoAnswerPermission: ");
+//            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ANSWER_PHONE_CALLS}, 200);
+            }
+        } else {
+            Intent intent = new
+                    Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            startActivity(intent);
+        }
     }
 
     private void showDialog(final AskAgainCallback.UserResponse response) {

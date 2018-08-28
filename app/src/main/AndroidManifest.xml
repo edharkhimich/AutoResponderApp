@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="kdevgroup.com.autoresponderapp">
 
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -11,6 +12,7 @@
         android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
 
     <application
@@ -30,9 +32,27 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".common.AcceptCallActivity"
+            android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/DefaultTheme">
+        </activity>
+
         <service
             android:name=".common.MyTaskService"
-            android:exported="false" />
+            android:exported="false"/>
+
+        <service
+            android:name=".common.NLService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action
+                    android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
 
     </application>
 </manifest>
