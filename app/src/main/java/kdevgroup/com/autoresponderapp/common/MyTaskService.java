@@ -21,15 +21,12 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.telecom.TelecomManager;
 import android.telephony.PhoneNumberUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import kdevgroup.com.autoresponderapp.R;
 import kdevgroup.com.autoresponderapp.main.MainActivity;
@@ -38,7 +35,6 @@ import kdevgroup.com.autoresponderapp.receivers.CallReceiver;
 import static kdevgroup.com.autoresponderapp.common.Constants.NOTIFICATION_CHANNEL_ID;
 import static kdevgroup.com.autoresponderapp.common.Constants.NUMBER_KEY;
 import static kdevgroup.com.autoresponderapp.common.Constants.PHONE_ACTION_STATE;
-import static kdevgroup.com.autoresponderapp.common.Constants.TAG;
 import static kdevgroup.com.autoresponderapp.common.Constants.TELECOM_PACKAGE_NAME;
 
 public class MyTaskService extends Service {

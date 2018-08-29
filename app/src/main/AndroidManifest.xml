@@ -32,14 +32,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".common.AcceptCallActivity"
-            android:launchMode="singleTop"
-            android:excludeFromRecents="true"
-            android:taskAffinity=""
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/DefaultTheme">
-        </activity>
-
         <service
             android:name=".common.MyTaskService"
             android:exported="false"/>
