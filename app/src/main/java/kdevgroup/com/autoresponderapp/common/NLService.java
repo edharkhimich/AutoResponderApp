@@ -7,6 +7,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import kdevgroup.com.autoresponderapp.R;
+
 import static kdevgroup.com.autoresponderapp.common.Constants.TAG;
 
 @SuppressLint("OverrideAbstract")
@@ -17,9 +19,7 @@ public class NLService extends NotificationListenerService {
         try {
             if (sbn.getNotification().actions != null) {
                 for (Notification.Action action : sbn.getNotification().actions) {
-                    Log.e(TAG, "" + action.title);
-                    if (action.title.toString().equalsIgnoreCase("Answer")) {
-                        Log.e(TAG, "" + true);
+                    if (action.title.toString().equalsIgnoreCase(getString(R.string.answer_ok))) {
                         PendingIntent intent = action.actionIntent;
 
                         try {

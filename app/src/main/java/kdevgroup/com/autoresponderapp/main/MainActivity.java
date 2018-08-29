@@ -6,34 +6,27 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-import com.arellomobile.mvp.MvpAppCompatActivity;
-import com.arellomobile.mvp.presenter.InjectPresenter;
-
 import kdevgroup.com.autoresponderapp.R;
-import kdevgroup.com.autoresponderapp.common.Constants;
 import kdevgroup.com.autoresponderapp.common.MyTaskService;
 import rebus.permissionutils.AskAgainCallback;
 import rebus.permissionutils.PermissionEnum;
 import rebus.permissionutils.PermissionManager;
 import rebus.permissionutils.PermissionUtils;
 
-public class MainActivity extends MvpAppCompatActivity implements MainView {
+import static kdevgroup.com.autoresponderapp.common.Constants.ACTION_NOTIFICATION_LISTENER_SETTINGS;
 
-    @InjectPresenter
-    MainPresenter presenter;
-
-    private boolean autoAnswerActivate;
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(Constants.TAG, "onCreate: ");
 
         checkAutoAnswerPermission();
         checkPermissions();
@@ -51,7 +44,7 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
                     }
                     if (somePermissionsDeniedForever) {
                         Toast.makeText(getApplicationContext(),
-                                "Until you grant the permission, the application willn't work correctly",
+                                getString(R.string.permission_denied_warning),
                                 Toast.LENGTH_LONG).show();
                         PermissionUtils.openApplicationSettings(MainActivity.this, R.class.getPackage().getName());
                     }
@@ -63,22 +56,20 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED
                     || ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.MODIFY_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                Log.d(Constants.TAG, "checkAutoAnswerPermission: ");
-//            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ANSWER_PHONE_CALLS}, 200);
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ANSWER_PHONE_CALLS}, 200);
             }
         } else {
-            Intent intent = new
-                    Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            Intent intent = new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS);
             startActivity(intent);
         }
     }
 
     private void showDialog(final AskAgainCallback.UserResponse response) {
         new AlertDialog.Builder(MainActivity.this)
-                .setTitle("Permission needed")
-                .setMessage("This app realy need to use this permission, you wont to authorize it?")
-                .setPositiveButton("OK", (dialogInterface, i) -> response.result(true))
-                .setNegativeButton("NOT NOW", (dialogInterface, i) -> response.result(false))
+                .setTitle(getString(R.string.permission_needed))
+                .setMessage(getString(R.string.permission_realy_need_permission))
+                .setPositiveButton(getString(R.string.answer_ok), (dialogInterface, i) -> response.result(true))
+                .setNegativeButton(getString(R.string.not_info), (dialogInterface, i) -> response.result(false))
                 .setCancelable(false)
                 .show();
     }
@@ -87,11 +78,5 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         PermissionManager.handleResult(this, requestCode, permissions, grantResults);
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.i(Constants.TAG, "Main Activity onDestroy!");
-        super.onDestroy();
     }
 }

@@ -37,28 +37,22 @@ import kdevgroup.com.autoresponderapp.receivers.CallReceiver;
 
 import static kdevgroup.com.autoresponderapp.common.Constants.NOTIFICATION_CHANNEL_ID;
 import static kdevgroup.com.autoresponderapp.common.Constants.NUMBER_KEY;
+import static kdevgroup.com.autoresponderapp.common.Constants.PHONE_ACTION_STATE;
 import static kdevgroup.com.autoresponderapp.common.Constants.TAG;
+import static kdevgroup.com.autoresponderapp.common.Constants.TELECOM_PACKAGE_NAME;
 
 public class MyTaskService extends Service {
 
     private String phoneNr;
 
-
-    public int counter = 0;
-
-    private Timer timer;
-    private TimerTask timerTask;
     private CallReceiver callReceiver;
 
     private boolean contactNumberCalling() {
         boolean contactNumber = false;
         for (String number : getContactNumbers()) {
             if (PhoneNumberUtils.compare(getApplicationContext(), number, phoneNr)) {
-                Log.d(TAG, "contactNumberCalling: equals");
                 contactNumber = true;
                 break;
-            } else {
-                Log.d(TAG, "Unknown Number calling | number --> " + number);
             }
         }
         return contactNumber;
@@ -68,21 +62,16 @@ public class MyTaskService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        startTimer();
-
         if (intent.getStringExtra(NUMBER_KEY) != null) {
             phoneNr = intent.getStringExtra(NUMBER_KEY);
-            if (!contactNumberCalling()) {
-                Log.d(TAG, "onStartCommand: !contactnumber calling");
+            if (contactNumberCalling()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     answerAutoCall();
                 } else {
-                    Log.d(TAG, "onStartCommand: call on 25 api");
                     sendHeadsetHookLollipop();
                 }
                 //TODO detect voice
             }
-            Log.d(TAG, "onReceive: phone number " + phoneNr);
         }
         startCallReceiver();
 
@@ -94,21 +83,21 @@ public class MyTaskService extends Service {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     void sendHeadsetHookLollipop() {
-        MediaSessionManager mediaSessionManager =  (MediaSessionManager) getApplicationContext().getSystemService(Context.MEDIA_SESSION_SERVICE);
+        MediaSessionManager mediaSessionManager = (MediaSessionManager) getApplicationContext().getSystemService(Context.MEDIA_SESSION_SERVICE);
 
         try {
+            assert mediaSessionManager != null;
             List<MediaController> mediaControllerList = mediaSessionManager.getActiveSessions
                     (new ComponentName(getApplicationContext(), NotificationReceiverService.class));
 
             for (MediaController m : mediaControllerList) {
-                if ("com.android.server.telecom".equals(m.getPackageName())) {
+                if (TELECOM_PACKAGE_NAME.equals(m.getPackageName())) {
                     m.dispatchMediaButtonEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HEADSETHOOK));
-                    Log.d(TAG, "sendHeadsetHookLollipop: HEADSETHOOK sent to telecom server");
                     break;
                 }
             }
         } catch (SecurityException e) {
-            Log.e(TAG, "sendHeadsetHookLollipop: Permission error. Access to notification not granted to the app.");
+            e.printStackTrace();
         }
     }
 
@@ -128,7 +117,7 @@ public class MyTaskService extends Service {
         IntentFilter intentFilter = new IntentFilter();
         callReceiver = new CallReceiver();
 
-        intentFilter.addAction("android.intent.action.PHONE_STATE");
+        intentFilter.addAction(PHONE_ACTION_STATE);
         intentFilter.setPriority(100);
 
         registerReceiver(callReceiver, intentFilter);
@@ -146,10 +135,10 @@ public class MyTaskService extends Service {
 
             Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+            assert phones != null;
             while (phones.moveToNext()) {
                 String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 contacts.add(number);
-                Log.d(Constants.TAG, "getContactNames: " + number);
             }
             phones.close();
         }
@@ -166,48 +155,17 @@ public class MyTaskService extends Service {
         Notification notification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentIntent(pendingIntent)
-                .setContentTitle("Incoming number: " + phoneNr)
+                .setContentTitle(getString(R.string.not_incoming_number) + phoneNr)
                 .setContentText("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
-                .setContentInfo("Info")
+                .setContentInfo(getString(R.string.not_info))
                 .build();
 
         startForeground(1, notification);
     }
 
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    public void startTimer() {
-        if (counter == 0) {
-            timer = new Timer();
-            initializeTimerTask();
-            timer.schedule(timerTask, 1000, 1000);
-        }
-    }
-
-    public void initializeTimerTask() {
-        timerTask = new TimerTask() {
-            public void run() {
-                Log.i(TAG, "in timer ++++  " + (counter++));
-            }
-        };
-    }
-
-    public void stoptimertask() {
-        //stop the timer, if it's not already null
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        stoptimertask();
     }
 }

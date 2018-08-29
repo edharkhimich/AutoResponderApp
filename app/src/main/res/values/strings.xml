@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">AutoResponderApp</string>
+
+    <string name="permission_denied_warning">Until you grant the permission, the application willn\'t work correctly</string>
+    <string name="permission_needed">Permission needed</string>
+    <string name="permission_realy_need_permission">This app really need to use this permission, you wont to authorize it?</string>
+    <string name="answer_ok">OK</string>
+    <string name="answer_not_now">NOT NOW</string>
+    <string name="not_incoming_number">Incoming number: </string>
+    <string name="not_info">Info</string>
+
 </resources>
